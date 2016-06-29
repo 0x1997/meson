@@ -536,6 +536,10 @@ class SharedModuleHolder(BuildTargetHolder):
     def __init__(self, target, interp):
         super().__init__(target, interp)
 
+class ObjectLibraryHolder(BuildTargetHolder):
+    def __init__(self, target, interp):
+        super().__init__(target, interp)
+
 class JarHolder(BuildTargetHolder):
     def __init__(self, target, interp):
         super().__init__(target, interp)
@@ -1173,6 +1177,7 @@ class Interpreter(InterpreterBase):
                       'static_library' : self.func_static_lib,
                       'shared_library' : self.func_shared_lib,
                       'shared_module' : self.func_shared_module,
+                      'object_library' : self.func_object_lib,
                       'library' : self.func_library,
                       'jar' : self.func_jar,
                       'build_target': self.func_build_target,
@@ -1797,6 +1802,9 @@ requirements use the version keyword argument instead.''')
     def func_shared_module(self, node, args, kwargs):
         return self.build_target(node, args, kwargs, SharedModuleHolder)
 
+    def func_object_lib(self, node, args, kwargs):
+        return self.build_target(node, args, kwargs, ObjectLibraryHolder)
+
     def func_library(self, node, args, kwargs):
         if self.coredata.get_builtin_option('default_library') == 'shared':
             return self.func_shared_lib(node, args, kwargs)
@@ -2276,6 +2284,8 @@ requirements use the version keyword argument instead.''')
             targetclass = build.SharedModule
         elif targetholder is StaticLibraryHolder:
             targetclass = build.StaticLibrary
+        elif targetholder is ObjectLibraryHolder:
+            targetclass = build.ObjectLibrary
         elif targetholder is JarHolder:
             targetclass = build.Jar
         else:

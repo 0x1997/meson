@@ -1988,6 +1988,15 @@ rule FORTRAN_DEP_HACK
         return linker.get_no_stdlib_link_args()
 
     def generate_link(self, target, outfile, outname, obj_list, linker, extra_args=[]):
+        if isinstance(target, build.ObjectLibrary):
+            linker_rule = 'phony'
+            dep_targets = [os.path.join(self.environment.source_dir,
+                                        target.subdir, t) for t in target.link_depends]
+            custom_target_libraries = self.get_custom_target_provided_libraries(target)
+            elem = NinjaBuildElement(self.all_outputs, outname, linker_rule, obj_list)
+            elem.add_dep(dep_targets + custom_target_libraries)
+            return elem
+
         if isinstance(target, build.StaticLibrary):
             linker_base = 'STATIC'
         else:
