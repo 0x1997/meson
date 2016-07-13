@@ -128,11 +128,13 @@ If you want to change option values, use the mesonconf tool instead.'''
                 raise RuntimeError('Something went terribly wrong. Please file a bug.')
         return (src_dir, build_dir)
 
-    def check_pkgconfig_envvar(self, env):
-        curvar = os.environ.get('PKG_CONFIG_PATH', '')
-        if curvar != env.coredata.pkgconf_envvar:
-            mlog.warning('PKG_CONFIG_PATH has changed between invocations from "%s" to "%s".' %
-                         (env.coredata.pkgconf_envvar, curvar))
+    def check_persistent_envvar(self, env):
+        curvar = os.environ.get('BOOST_ROOT')
+        if curvar is not None:
+            env.coredata.boost_envvar = curvar
+
+        curvar = os.environ.get('PKG_CONFIG_PATH')
+        if curvar is not None:
             env.coredata.pkgconf_envvar = curvar
 
     def generate(self):
@@ -142,7 +144,7 @@ If you want to change option values, use the mesonconf tool instead.'''
         mlog.debug('Python binary:', sys.executable)
         mlog.debug('Python system:', platform.system())
         mlog.log(mlog.bold('The Meson build system'))
-        self.check_pkgconfig_envvar(env)
+        self.check_persistent_envvar(env)
         mlog.log('Version:', coredata.version)
         mlog.log('Source dir:', mlog.bold(self.source_dir))
         mlog.log('Build dir:', mlog.bold(self.build_dir))

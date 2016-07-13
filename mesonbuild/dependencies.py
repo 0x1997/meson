@@ -110,6 +110,9 @@ class PkgConfigDependency(Dependency):
             want_cross = environment.is_cross_build()
         self.name = name
 
+        if environment.coredata.pkgconf_envvar is not None:
+            os.environ['PKG_CONFIG_PATH'] = environment.coredata.pkgconf_envvar
+
         # When finding dependencies for cross-compiling, we don't care about
         # the 'native' pkg-config
         if want_cross:
@@ -530,13 +533,13 @@ class BoostDependency(Dependency):
             want_cross = not kwargs['native']
         else:
             want_cross = environment.is_cross_build()
-        try:
-            self.boost_root = os.environ['BOOST_ROOT']
+        self.boost_root = environment.get_coredata().boost_envvar
+        if self.boost_root is not None:
             if not os.path.isabs(self.boost_root):
                 raise DependencyException('BOOST_ROOT must be an absolute path.')
-        except KeyError:
-            self.boost_root = None
-        if self.boost_root is None:
+
+            self.incdir = os.path.join(self.boost_root, 'include')
+        else:
             if want_cross:
                 raise DependencyException('BOOST_ROOT is needed while cross-compiling')
             if mesonlib.is_windows():
@@ -544,8 +547,6 @@ class BoostDependency(Dependency):
                 self.incdir = self.boost_root
             else:
                 self.incdir = '/usr/include'
-        else:
-            self.incdir = os.path.join(self.boost_root, 'include')
         self.boost_inc_subdir = os.path.join(self.incdir, 'boost')
         mlog.debug('Boost library root dir is', self.boost_root)
         self.src_modules = {}
