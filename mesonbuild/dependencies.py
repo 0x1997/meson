@@ -671,7 +671,10 @@ class BoostDependency(Dependency):
         else:
             libdirs = [os.path.join(self.boost_root, 'lib')]
         for libdir in libdirs:
-            for entry in glob.glob(os.path.join(libdir, globber)):
+            entries = glob.glob(os.path.join(libdir, globber))
+            if entries:
+                self.libdir = libdir
+            for entry in entries:
                 lib = os.path.basename(entry)
                 name = lib.split('.')[0].split('_', 1)[-1]
                 # I'm not 100% sure what to do here. Some distros

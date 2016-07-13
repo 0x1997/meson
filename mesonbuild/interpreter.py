@@ -248,6 +248,18 @@ class DependencyHolder(InterpreterObject):
             raise InterpreterException('Variable name must be a string.')
         return self.held_object.get_pkgconfig_variable(varname)
 
+class BoostDependencyHolder(DependencyHolder):
+    def __init__(self, dep):
+        DependencyHolder.__init__(self, dep)
+        self.methods.update({'include_dir' : self.include_dir_method,
+                             'lib_dir': self.lib_dir_method})
+
+    def include_dir_method(self, args, kwargs):
+        return self.held_object.incdir
+
+    def lib_dir_method(self, args, kwargs):
+        return self.held_object.libdir
+
 class InternalDependencyHolder(InterpreterObject):
     def __init__(self, dep):
         InterpreterObject.__init__(self)
@@ -1743,7 +1755,7 @@ requirements use the version keyword argument instead.''')
                     raise exception
 
         self.coredata.deps[identifier] = dep
-        return DependencyHolder(dep)
+        return DependencyHolder(dep) if name != 'boost' else BoostDependencyHolder(dep)
 
     def get_subproject_infos(self, kwargs):
         fbinfo = kwargs['fallback']
