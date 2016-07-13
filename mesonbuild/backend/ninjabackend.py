@@ -2088,6 +2088,7 @@ rule FORTRAN_DEP_HACK
             prospective = self.get_target_dir(ld)
             if not prospective in result:
                 result.append(prospective)
+        result += target.extra_build_rpaths
         return result
 
     def get_dependency_filename(self, t):

@@ -39,6 +39,7 @@ known_basic_kwargs = {'install' : True,
                       'main_class' : True,
                       'gui_app' : True,
                       'extra_files' : True,
+                      'extra_build_rpaths': True,
                       'install_rpath' : True,
                       'resources' : True,
                       'sources' : True,
@@ -592,6 +593,12 @@ class BuildTarget():
             if not(os.path.isfile(trial)):
                 raise InvalidArguments('Tried to add non-existing extra file %s.' % i)
         self.extra_files = extra_files
+        self.extra_build_rpaths = kwargs.get('extra_build_rpaths', [])
+        if not isinstance(self.extra_build_rpaths, list):
+            self.extra_build_rpaths = [self.extra_build_rpaths]
+        for rpath in self.extra_build_rpaths:
+            if not isinstance(rpath, str):
+                raise InvalidArguments('Arguments to extra_build_rpaths must be strings.')
         self.install_rpath = kwargs.get('install_rpath', '')
         if not isinstance(self.install_rpath, str):
             raise InvalidArguments('Install_rpath is not a string.')
